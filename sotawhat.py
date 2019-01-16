@@ -8,6 +8,8 @@ import nltk
 from nltk.tokenize import word_tokenize
 from six.moves.html_parser import HTMLParser
 
+import logging
+
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
@@ -15,11 +17,15 @@ except LookupError:
 
 h = HTMLParser()
 
+# fout = open('info.txt','w+')
+logging.basicConfig(filename='logger.txt', level=logging.INFO)
+
+
 AUTHOR_TAG = '<a href="/search/?searchtype=author'
 TITLE_TAG = '<p class="title is-5 mathjax">'
 ABSTRACT_TAG = '<span class="abstract-full has-text-grey-dark mathjax"'
 DATE_TAG = '<p class="is-size-7"><span class="has-text-black-bis has-text-weight-semibold">Submitted</span>'
-
+LINK_TAG = '<a href="https://arxiv.org/pdf/'
 
 def get_authors(lines, i):
     authors = []
@@ -248,6 +254,7 @@ def get_papers(keyword, num_results=5):
         query = query_temp.format(keyword_q, str(per_page), str(per_page * page))
 
         req = urllib.request.Request(query)
+
         try:
             response = urllib.request.urlopen(req)
         except urllib.error.HTTPError as e:
@@ -255,7 +262,7 @@ def get_papers(keyword, num_results=5):
             return
 
         txt = response.read()
-
+        logging.info(txt)
         unshown, num_to_show, found = txt2reports(txt, keyword, num_to_show)
 
         if not found and not all_unshown and num_to_show == num_results:
@@ -310,3 +317,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
